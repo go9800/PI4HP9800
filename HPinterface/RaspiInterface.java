@@ -113,7 +113,7 @@ public class RaspiInterface
     Gpio.pinMode(NSSI, Gpio.OUTPUT);
     Gpio.pullUpDnControl(NSSI, Gpio.PUD_OFF); // no pull-down resistor
 
-    while(true) { 
+    while(true) {
       t = System.nanoTime();
 
       ceo = Gpio.digitalRead(NCEO) == 0; // get CEO state

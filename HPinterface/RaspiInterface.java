@@ -114,26 +114,35 @@ public class RaspiInterface
     Gpio.pullUpDnControl(NSSI, Gpio.PUD_OFF); // no pull-down resistor
 
     while(true) { 
-      t = System.nanoTime();
+    	// get STP state
+      if(Gpio.digitalRead(NSTP) == 0) {  // STP true?
+      	System.out.println("STOP");
+      	break;
+      }
+      
+      // get CEO state
+      if(Gpio.digitalRead(NCEO) == 0) {  // CEO true?
+        t = System.nanoTime();
 
-      ceo = Gpio.digitalRead(NCEO) == 0; // get CEO state
-      if(ceo) {
-      	coVal = soVal = diVal = 0;
+      	coVal = soVal = doVal = 0;
       	
-      	for(i = 0; i < 4; i++) {
+      	for(i = 3; i >= 0; i--) {
         	coVal = coVal << 1 | Gpio.digitalRead(CO[i]);
         	soVal = soVal << 1 | Gpio.digitalRead(SO[i]);
       	}
       	
-      	for(i = 0; i < 8; i++) {
+      	for(i = 7; i >= 0; i--) {
         	doVal = doVal << 1 | Gpio.digitalRead(DIO[i]);
       	}
       	
-      	System.out.println(Integer.toHexString(coVal) + " "+ Integer.toHexString(soVal) + " " + Integer.toHexString(doVal));
-      	Gpio.digitalWrite(NCFI, 0);
-      	Gpio.digitalWrite(NCFI, 1);
+      	System.out.print(Integer.toHexString(coVal) + " "+ Integer.toHexString(soVal) + " " + Integer.toHexString(doVal) + " ");
+      	
+      	Gpio.digitalWrite(NCFI, 0);  // set CFI
+        while(Gpio.digitalRead(NCEO) == 0);  // wait until CEO false 
+      	Gpio.digitalWrite(NCFI, 1);  // clear CFI
       	
         t = System.nanoTime() - t;
+        System.out.println(t);
       }
     }
   }
